@@ -1,0 +1,40 @@
+package:
+  name: cimcb_lite
+  version: 1.0.0
+
+source:
+  path: ../
+
+build:
+  noarch: python
+  number: 0
+  script: "{{ PYTHON }} -m pip install . --no-deps -vv"
+
+requirements:
+  build:
+    - setuptools
+    - python >=3.5
+    - bokeh >=1.0.0
+    - numpy 
+    - pandas 
+    - scipy
+    - scikit-learn
+    - statsmodels
+    - python >=3.5
+    - tqdm
+    - xlrd
+
+  run:
+    - python >=3.5
+    - bokeh >=1.0.0
+    - numpy 
+    - pandas
+    - scipy
+    - scikit-learn
+    - statsmodels
+    - tqdm
+    - xlrd
+
+about:
+  home: https://github.com/CIMCB
+  summary: "cimcb_lite is a lite version of the cimcb package containing the necessary tools for the statistical analysis of untargeted and targeted metabolomics data."
