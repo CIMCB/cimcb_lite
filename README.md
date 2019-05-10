@@ -70,7 +70,7 @@ For futher detail on the usage refer to the docstring.
 - [wmean](https://github.com/KevinMMendez/cimcb_lite/blob/master/cimcb_lite/utils/wmean.py#L4-L19): Returns Weighted Mean. Ignores NaNs and handles infinite weights.
 
 ### License
-cimcb_lite is licensed under the ___ license. 
+cimcb_lite is licensed under the MIT license. 
 
 ### Authors
 - [Kevin Mendez](https://github.com/KevinMMendez/)
