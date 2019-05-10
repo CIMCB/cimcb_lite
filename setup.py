@@ -8,6 +8,7 @@ setup(
     version="1.0.0",
     description="A lite version of the cimcb package containing the necessary tools for the statistical analysis of untargeted and targeted metabolomics data.",
     long_description=long_description,
+    license="MIT License",
     url="https://github.com/cimcb/cimcb_lite",
     packages=[
         "cimcb_lite",
