@@ -243,6 +243,7 @@ class BaseModel(ABC):
         if peaklist is not None:
             PeakTable = PeakTable[PeakTable["Name"].isin(peaklist)]
         peaklabel = PeakTable[ylabel]
+        peaklabel = peaklabel.apply(str)
 
         # Plot
         fig_1 = scatterCI(self.model.coef_, ci=ci_coef, label=peaklabel, hoverlabel=PeakTable[["Idx", "Name", "Label"]], hline=0, col_hline=True, title="Coefficient Plot", sort_abs=sort)
