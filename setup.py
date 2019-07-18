@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="cimcb_lite",
-    version="1.0.0",
+    version="1.0.1",
     description="A lite version of the cimcb package containing the necessary tools for the statistical analysis of untargeted and targeted metabolomics data.",
     long_description=long_description,
     license="MIT License",
