@@ -7,7 +7,7 @@ from .scatter import scatter
 from ..utils import ci95_ellipse
 
 
-def pca(X, pcx=1, pcy=2, group_label=None, sample_label=None, peak_label=None):
+def pca(X, pcx=1, pcy=2, group_label=None, sample_label=None, peak_label=None, plot_ci=True):
     """Creates a PCA scores and loadings plot using Bokeh.
 
     Required Parameters
@@ -59,27 +59,28 @@ def pca(X, pcx=1, pcy=2, group_label=None, sample_label=None, peak_label=None):
         list_color += list_color
 
     # Add 95% confidence ellipse for each unique group in a loop
-    for i in range(len(unique_group)):
-        # Get scores for the corresponding group
-        group_i_x = []
-        group_i_y = []
-        for j in range(len(group_label)):
-            if group_label[j] == unique_group[i]:
-                group_i_x.append(x_score[j])
-                group_i_y.append(y_score[j])
+    if plot_ci is True:
+        for i in range(len(unique_group)):
+            # Get scores for the corresponding group
+            group_i_x = []
+            group_i_y = []
+            for j in range(len(group_label)):
+                if group_label[j] == unique_group[i]:
+                    group_i_x.append(x_score[j])
+                    group_i_y.append(y_score[j])
 
-        # Calculate ci95 ellipse for each group
-        data_circ_group = pd.DataFrame({"0": group_i_x, "1": group_i_y})
-        m, outside_m = ci95_ellipse(data_circ_group, type="mean")
-        p, outside_p = ci95_ellipse(data_circ_group, type="pop")
+            # Calculate ci95 ellipse for each group
+            data_circ_group = pd.DataFrame({"0": group_i_x, "1": group_i_y})
+            m, outside_m = ci95_ellipse(data_circ_group, type="mean")
+            p, outside_p = ci95_ellipse(data_circ_group, type="pop")
 
-        # Plot ci95 ellipse outer line
-        fig_score.line(m[:, 0], m[:, 1], color=list_color[i], line_width=2, alpha=0.8, line_dash="solid")
-        fig_score.line(p[:, 0], p[:, 1], color=list_color[i], alpha=0.4)
+            # Plot ci95 ellipse outer line
+            fig_score.line(m[:, 0], m[:, 1], color=list_color[i], line_width=2, alpha=0.8, line_dash="solid")
+            fig_score.line(p[:, 0], p[:, 1], color=list_color[i], alpha=0.4)
 
-        # Plot ci95 ellipse shade
-        fig_score.patch(m[:, 0], m[:, 1], color=list_color[i], alpha=0.07)
-        fig_score.patch(p[:, 0], p[:, 1], color=list_color[i], alpha=0.01)
+            # Plot ci95 ellipse shade
+            fig_score.patch(m[:, 0], m[:, 1], color=list_color[i], alpha=0.07)
+            fig_score.patch(p[:, 0], p[:, 1], color=list_color[i], alpha=0.01)
 
     # Output this figure with fig_score and fig_load
     output_notebook()
