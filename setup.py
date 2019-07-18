@@ -1,13 +1,17 @@
 from setuptools import setup
 
-with open("README.md", "r") as f:
-    long_description = f.read()
+
+def readme():
+    with open('README.md', encoding='utf-8') as f:
+        return f.read()
+
 
 setup(
     name="cimcb_lite",
     version="1.0.1",
     description="A lite version of the cimcb package containing the necessary tools for the statistical analysis of untargeted and targeted metabolomics data.",
-    long_description=long_description,
+    long_description=readme(),
+    long_description_content_type='text/markdown',
     license="MIT License",
     url="https://github.com/cimcb/cimcb_lite",
     packages=[
