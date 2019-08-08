@@ -77,5 +77,4 @@ cimcb_lite is licensed under the MIT license.
 - [David Broadhurst](https://scholar.google.ca/citations?user=M3_zZwUAAAAJ&hl=en)
 
 ### Correspondence
-Professor David Broadhurst, Director of the Centre for Integrative Metabolomics & Computation Biology at Edith Cowan University.  
-E-mail: d.broadhurst@ecu.edu.au
+Professor David Broadhurst, Director of the Centre for Integrative Metabolomics & Computation Biology at Edith Cowan University.
