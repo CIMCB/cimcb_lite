@@ -1,7 +1,7 @@
 <img src="cimcb_logo.png" alt="drawing" width="400"/>
 
 # cimcb lite 
-cimcb_lite is a lite version of the cimcb package containing the necessary tools for the statistical analysis of untargeted and targeted metabolomics data.
+cimcb_lite is a lite version of the cimcb package containing the a small number of basic tools for the statistical analysis of untargeted and targeted metabolomics data.
 
 ## Installation
 
