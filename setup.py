@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name="cimcb_lite",
-    version="1.0.1",
+    version="1.0.2",
     description="A lite version of the cimcb package containing the necessary tools for the statistical analysis of untargeted and targeted metabolomics data.",
     long_description=readme(),
     long_description_content_type='text/markdown',
