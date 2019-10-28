@@ -113,7 +113,11 @@ def univariate_2class(DataTable, PeakTable, group, posclass, parametric=True, se
         # Man-Whitney U
         m = []
         for i in range(len(x.T)):
-            manwstat = scipy.stats.mannwhitneyu(x0.values[:, i], x1.values[:, i])
+            x0_manw = x0.values[:, i]
+            x1_manw = x1.values[:, i]
+            x0_manw_nonan = x0_manw[~np.isnan(x0_manw)]  # omit nans
+            x1_manw_nonan = x1_manw[~np.isnan(x1_manw)]  # omit nans
+            manwstat = scipy.stats.mannwhitneyu(x0_manw_nonan, x1_manw_nonan, alternative='two-sided')
             m.append(manwstat)
         StatsTable["MannWhitneyU"] = [i[0] for i in m]
         StatsTable["MannWhitneyPvalue"] = [i[1] for i in m]
