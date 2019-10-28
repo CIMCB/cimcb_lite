@@ -74,8 +74,6 @@ def scatterCI(x, ci=None, label=None, hoverlabel=None, hline=0, sort_abs=False, 
                 ci.append([ci_low[i], ci_high[i]])
             ci = np.array(ci)
         hoverlabel = hoverlabel.copy()
-        # hoverlabel = hoverlabel.reset_index()
-        # hoverlabel = hoverlabel.reindex(sorted_idx).drop('index', axis=1)
     elif sort_abs is False:
         pass
 
@@ -91,6 +89,13 @@ def scatterCI(x, ci=None, label=None, hoverlabel=None, hline=0, sort_abs=False, 
             hoverlabel2 = label.copy()
             hoverlabel_copy = {}
             hoverlabel_copy[label2.name] = hoverlabel2.values.tolist()
+
+        # Sort hoverlabel
+        if sort_abs is True:
+            hoverlabel2 = {}
+            for key, value in hoverlabel_copy.items():
+                hoverlabel2[key] = np.array(value)[sorted_idx]
+            hoverlabel_copy = hoverlabel2
 
     # Linking to another plot
     if linkrange is None:
