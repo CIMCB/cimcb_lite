@@ -173,7 +173,7 @@ class BaseModel(ABC):
         # Plot table
         source = ColumnDataSource(data=tabledata)
         columns = [TableColumn(field="evaluate", title="Evaluate"), TableColumn(field="manw_pval", title="MW-U Pvalue"), TableColumn(field="R2", title="R2"), TableColumn(field="auc", title="AUC"), TableColumn(field="accuracy", title="Accuracy"), TableColumn(field="precision", title="Precision"), TableColumn(field="sensitivity", title="Sensitivity"), TableColumn(field="F1score", title="F1score")]
-        table_bokeh = widgetbox(DataTable(source=source, columns=columns, width=950, height=90), width=950, height=80)
+        table_bokeh = widgetbox(DataTable(source=source, columns=columns, width=950, height=90), width=950, height=100)
 
         # Title
         if specificity is not False:
@@ -185,7 +185,7 @@ class BaseModel(ABC):
         title_bokeh = "<h3>{}</h3>".format(title)
 
         # Combine table, violin plot and roc plot into one figure
-        fig = layout([[violin_bokeh, dist_bokeh, roc_bokeh], [table_bokeh]], toolbar_location="right")
+        fig = layout([[violin_bokeh, dist_bokeh, roc_bokeh], [table_bokeh]])
         output_notebook()
         show(column(Div(text=title_bokeh, width=900, height=50), fig))
 
