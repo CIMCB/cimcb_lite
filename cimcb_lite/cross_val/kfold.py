@@ -150,7 +150,7 @@ class kfold(BaseCrossVal):
         table.columns = param_list_string
         return table
 
-    def plot(self, metric="r2q2"):
+    def plot(self, metric="r2q2", grid_line=True):
         """Create a full/cv plot using based on metric selected.
 
         Parameters
@@ -294,6 +294,13 @@ class kfold(BaseCrossVal):
             fig2.legend.location = "top_left"
         else:
             fig2.legend.location = "bottom_right"
+        
+        # Remove grid lines
+        if grid_line == False:
+            fig1.xgrid.visible = False
+            fig1.ygrid.visible = False
+            fig2.xgrid.visible = False
+            fig2.ygrid.visible = False
 
         # Create a grid and output figures
         grid = np.full((1, 2), None)
