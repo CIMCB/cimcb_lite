@@ -77,6 +77,7 @@ class kfold(BaseCrossVal):
             stats_combined = {**stats_full_i, **stats_cv_i}
             stats_list.append(stats_combined)
         self.table = self._format_table(stats_list)  # Transpose, Add headers
+        self.table = self.table.reindex(index=np.sort(self.table.index))
         return self.table
 
     def run(self):
