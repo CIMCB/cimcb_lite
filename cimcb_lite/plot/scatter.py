@@ -54,7 +54,7 @@ def scatter(x, y, label=None, group=None, title="Scatter Plot", xlabel="x", ylab
                 if group_copy[i] == group_unique[j]:
                     col.append(col_palette[j])
 
-    # Bokeh data source with data labels
+                    # Bokeh data source with data labels
     data = {"x": x, "y": y, "group": group_copy, "col": col}
     data_label = {}
     for name, val in label_copy.items():
@@ -97,18 +97,18 @@ def scatter(x, y, label=None, group=None, title="Scatter Plot", xlabel="x", ylab
     if vline is not False:
         v = Span(location=0, dimension="height", line_color="black", line_width=3, line_alpha=0.15)
         fig.add_layout(v)
-    
-    # Plot extra: 95% confidence ellipse using PCA
-    group_label = group_copy
-    unique_group = np.sort(np.unique(group_label))
-
-    # Set colour per group
-    list_color = ["red", "blue", "green", "orange", "blueviolet", "gold", "peru", "pink", "darkblue", "olive", "teal", "slategray"]
-    while len(list_color) < len(unique_group):  # Loop over list_color if number of groups > len(list_colour)
-        list_color += list_color
 
     # Add 95% confidence ellipse for each unique group in a loop
     if ci is True:
+        # Plot extra: 95% confidence ellipse using PCA
+        group_label = group_copy
+        unique_group = np.sort(np.unique(group_label))
+
+        # Set colour per group
+        list_color = ["red", "blue", "green", "orange", "blueviolet", "gold", "peru", "pink", "darkblue", "olive", "teal", "slategray"]
+        while len(list_color) < len(unique_group):  # Loop over list_color if number of groups > len(list_colour)
+            list_color += list_color
+        
         new_max_range_list = []
         for i in range(len(unique_group)):
             # Get scores for the corresponding group
