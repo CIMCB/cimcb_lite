@@ -37,7 +37,7 @@ class BaseModel(ABC):
         """A list of attributes for bootstrap resampling."""
         pass
 
-    def evaluate(self, testset=None, specificity=False, cutoffscore=False, bootnum=1000):
+    def evaluate(self, testset=None, specificity=False, cutoffscore=False, bootnum=1000, grid_line=True):
         """Plots a figure containing a Violin plot, Distribution plot, ROC plot and Binary Metrics statistics.
 
         Parameters
@@ -183,7 +183,16 @@ class BaseModel(ABC):
         else:
             title = "Specificity fixed to: {}".format(np.round(val, 2))
         title_bokeh = "<h3>{}</h3>".format(title)
-
+        
+        # Remove grid lines
+        if grid_line == False:
+            violin_bokeh.xgrid.visible = False
+            violin_bokeh.ygrid.visible = False
+            dist_bokeh.xgrid.visible = False
+            dist_bokeh.ygrid.visible = False
+            roc_bokeh.xgrid.visible = False
+            roc_bokeh.ygrid.visible = False
+        
         # Combine table, violin plot and roc plot into one figure
         fig = layout([[violin_bokeh, dist_bokeh, roc_bokeh], [table_bokeh]])
         output_notebook()
@@ -209,7 +218,7 @@ class BaseModel(ABC):
             boot = Perc(self, self.X, self.Y, self.bootlist, bootnum=bootnum)
         self.bootci = boot.run()
 
-    def plot_featureimportance(self, PeakTable, peaklist=None, ylabel="Label", sort=True):
+    def plot_featureimportance(self, PeakTable, peaklist=None, ylabel="Label", sort=True, grid_line=True, border_line=False, x_axis_location="below"):
         """Plots feature importance metrics.
 
         Parameters
@@ -223,8 +232,8 @@ class BaseModel(ABC):
         ylabel : string, (default "Label")
             Name of column in PeakTable to use as the ylabel.
 
-        sort : boolean, (default True)
-            Whether to sort plots in absolute descending order.
+        sort : boolean or string, (default True)
+            Whether to sort plots in absolute descending order. To only sort coef or vip, use "coef" or "vip" respectively.
 
         Returns
         -------
@@ -238,7 +247,23 @@ class BaseModel(ABC):
         else:
             ci_coef = self.bootci["model.coef_"]
             ci_vip = self.bootci["model.vip_"]
-
+        
+        # Sort
+        if sort is True:
+            sort_coef = True
+            sort_vip = True
+        elif sort is False:
+            sort_coef = False
+            sort_vip = False
+        elif sort is "coef":
+            sort_coef = True
+            sort_vip = False
+        elif sort is "vip":
+            sort_coef = False
+            sort_vip = True
+        else:
+            raise ValueError("Incorrect sort value. Options are True/False/'coef'/'vip'.")
+            
         # Remove rows from PeakTable if not in peaklist
         if peaklist is not None:
             PeakTable = PeakTable[PeakTable["Name"].isin(peaklist)]
@@ -246,8 +271,8 @@ class BaseModel(ABC):
         peaklabel = peaklabel.apply(str)
 
         # Plot
-        fig_1 = scatterCI(self.model.coef_, ci=ci_coef, label=peaklabel, hoverlabel=PeakTable[["Idx", "Name", "Label"]], hline=0, col_hline=True, title="Coefficient Plot", sort_abs=sort)
-        fig_2 = scatterCI(self.model.vip_, ci=ci_vip, label=peaklabel, hoverlabel=PeakTable[["Idx", "Name", "Label"]], hline=1, col_hline=False, title="Variable Importance in Projection (VIP)", sort_abs=sort)
+        fig_1 = scatterCI(self.model.coef_, ci=ci_coef, label=peaklabel, hoverlabel=PeakTable[["Idx", "Name", "Label"]], hline=0, col_hline=True, title="Coefficient Plot", sort_abs=sort_coef, grid_line=grid_line, border_line=border_line, x_axis_location=x_axis_location)
+        fig_2 = scatterCI(self.model.vip_, ci=ci_vip, label=peaklabel, hoverlabel=PeakTable[["Idx", "Name", "Label"]], hline=1, col_hline=False, title="Variable Importance in Projection (VIP)", sort_abs=sort_vip, grid_line=grid_line, border_line=border_line, x_axis_location=x_axis_location)
         fig = layout([[fig_1], [fig_2]])
         output_notebook()
         show(fig)
@@ -272,7 +297,7 @@ class BaseModel(ABC):
             Peaksheet["VIP-95CI"] = vip["VIP-95CI"].values
         return Peaksheet
 
-    def permutation_test(self, nperm=100):
+    def permutation_test(self, nperm=100, grid_line=False):
         """Plots permutation test figures.
 
         Parameters
@@ -280,6 +305,7 @@ class BaseModel(ABC):
         nperm : positive integer, (default 100)
             Number of permutations.
         """
-        fig = permutation_test(self, self.X, self.Y, nperm=nperm)
+        fig = permutation_test(self, self.X, self.Y, nperm=nperm, grid_line=grid_line)
+            
         output_notebook()
         show(fig)

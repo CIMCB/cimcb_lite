@@ -4,11 +4,10 @@ import pandas as pd
 from copy import deepcopy
 from itertools import combinations
 from sklearn.cross_decomposition import PLSRegression
-from bokeh.plotting import output_notebook, show
-from bokeh.layouts import gridplot
-from bokeh.plotting import ColumnDataSource, figure
+from bokeh.plotting import output_notebook, show, ColumnDataSource, figure
+from bokeh.layouts import gridplot, layout
 from .BaseModel import BaseModel
-from ..plot import scatter, distribution, roc_calculate, roc_plot, boxplot
+from ..plot import scatter, distribution, roc_calculate, roc_plot, boxplot, scatterCI
 
 
 class PLS_SIMPLS(BaseModel):
@@ -34,7 +33,7 @@ class PLS_SIMPLS(BaseModel):
     plot_permutation_test : Perform a permutation test and plot.
     """
 
-    bootlist = ["model.vip_", "model.coef_"]  # list of metrics to bootstrap
+    bootlist = ["model.vip_", "model.coef_", "model.x_loadings_"]  # list of metrics to bootstrap
 
     def __init__(self, n_components=2):
         self.model = PLSRegression()  # Should change this to an empty model
@@ -124,7 +123,7 @@ class PLS_SIMPLS(BaseModel):
         y_pred_test = np.matmul(newX, self.model.beta_)
         return y_pred_test
 
-    def plot_projections(self, label=None, size=12):
+    def plot_projections(self, label=None, size=12, grid_line=False, ci=False):
         """ Plots latent variables projections against each other in a Grid format.
 
         Parameters
@@ -156,6 +155,7 @@ class PLS_SIMPLS(BaseModel):
                 x = []
                 for i in range(len(y)):
                     x.append(i)
+            
             scatter_bokeh = scatter(x, y, label=label, group=self.Y, ylabel="LV {} ({:0.1f}%)".format(1, self.model.pctvar_[0]), xlabel="Idx", legend=True, title="", width=950, height=315, hline=0, size=int(size / 2), hover_xy=False)
 
             # Combine into one figure
@@ -188,13 +188,13 @@ class PLS_SIMPLS(BaseModel):
                 new_range_min = -max_range - 0.05 * max_range
                 new_range_max = max_range + 0.05 * max_range
                 new_range = (new_range_min, new_range_max)
-
-                grid[y, x] = scatter(self.model.x_scores_[:, x].tolist(), self.model.x_scores_[:, y].tolist(), label=label_copy, group=group_copy, title="", xlabel=xlabel, ylabel=ylabel, width=width_height, height=width_height, legend=False, size=circle_size_scoreplot, label_font_size=label_font, hover_xy=False, xrange=new_range, yrange=new_range, gradient=gradient)
-
+                
+                grid[y, x] = scatter(self.model.x_scores_[:, x].tolist(), self.model.x_scores_[:, y].tolist(), label=label_copy, group=group_copy, title="", xlabel=xlabel, ylabel=ylabel, width=width_height, height=width_height, legend=False, size=circle_size_scoreplot, label_font_size=label_font, hover_xy=False, xrange=new_range, yrange=new_range, gradient=gradient, grid_line=grid_line, ci=ci)
+                
             # Append each distribution curve
             for i in range(num_x_scores):
                 xlabel = "LV {} ({:0.1f}%)".format(i + 1, self.model.pctvar_[i])
-                grid[i, i] = distribution(self.model.x_scores_[:, i], group=group_copy, kde=True, title="", xlabel=xlabel, ylabel="density", width=width_height, height=width_height, label_font_size=label_font)
+                grid[i, i] = distribution(self.model.x_scores_[:, i], group=group_copy, kde=True, title="", xlabel=xlabel, ylabel="density", width=width_height, height=width_height, label_font_size=label_font, grid_line=grid_line)
 
             # Append each roc curve
             for i in range(len(comb_x_scores)):
@@ -206,13 +206,72 @@ class PLS_SIMPLS(BaseModel):
 
                 # ROC Plot with x_rotate
                 fpr, tpr, tpr_ci = roc_calculate(group_copy, x_rotate, bootnum=100)
-                grid[x, y] = roc_plot(fpr, tpr, tpr_ci, width=width_height, height=width_height, xlabel="1-Specificity (LV{}/LV{})".format(x + 1, y + 1), ylabel="Sensitivity (LV{}/LV{})".format(x + 1, y + 1), legend=False, label_font_size=label_font)
-
+                grid[x, y] = roc_plot(fpr, tpr, tpr_ci, width=width_height, height=width_height, xlabel="1-Specificity (LV{}/LV{})".format(x + 1, y + 1), ylabel="Sensitivity (LV{}/LV{})".format(x + 1, y + 1), legend=False, label_font_size=label_font, grid_line=grid_line)
+            
+            
             # Bokeh grid
             fig = gridplot(grid.tolist())
 
         output_notebook()
         show(fig)
+    
+    def plot_loadings(self, PeakTable, peaklist=None, ylabel="Label", sort=False, grid_line=True, border_line=False, x_axis_location="below"):
+        """Plots feature importance metrics.
+
+        Parameters
+        ----------
+        PeakTable : DataFrame
+            Peak sheet with the required columns.
+
+        peaklist : list or None, (default None)
+            Peaks to include in plot (the default is to include all samples).
+
+        ylabel : string, (default "Label")
+            Name of column in PeakTable to use as the ylabel.
+
+        sort : boolean, (default True)
+            Whether to sort plots in absolute descending order.
+        """
+
+        # Number of loadings
+        n_loadings = len(self.model.x_loadings_[0])
+
+        # Check for confidence intervals
+        if not hasattr(self, "bootci"):
+            print("Use method calc_bootci prior to plot_featureimportance to add 95% confidence intervals to plots.")
+            ci_loadings = None
+        else:
+            ci_loadings = self.bootci["model.x_loadings_"]
+
+        # Remove rows from PeakTable if not in peaklist
+        if peaklist is not None:
+            PeakTable = PeakTable[PeakTable["Name"].isin(peaklist)]
+        peaklabel = PeakTable[ylabel]
+
+        # Plot loop
+        plots = []
+        for i in range(n_loadings):
+            if ci_loadings is None:
+                cii = None
+            else:
+                cii = ci_loadings[i]
+            fig = scatterCI(self.model.x_loadings_[:, i],
+                            ci=cii,
+                            label=peaklabel,
+                            hoverlabel=PeakTable[["Idx", "Name", "Label"]],
+                            hline=0,
+                            col_hline=True,
+                            title="Loadings Plot: LV {}".format(i + 1),
+                            sort_abs=sort,
+                            grid_line=grid_line, 
+                            border_line=border_line, 
+                            x_axis_location=x_axis_location)
+            plots.append([fig])
+
+        fig = layout(plots)
+        output_notebook()
+        show(fig)
+
 
     @staticmethod
     def pls_simpls(X, Y, ncomp=2):
