@@ -1,9 +1,11 @@
 import numpy as np
+import pandas as pd
 from bokeh.plotting import ColumnDataSource, figure
-from bokeh.models import Slope, Span, HoverTool
+from bokeh.models import Slope, Span, HoverTool, Range1d
+from ..utils import ci95_ellipse
 
 
-def scatter(x, y, label=None, group=None, title="Scatter Plot", xlabel="x", ylabel="y", width=600, height=600, legend=True, size=4, shape="circle", font_size="16pt", label_font_size="13pt", col_palette=None, hover_xy=True, gradient=False, hline=False, vline=False, xrange=None, yrange=None):
+def scatter(x, y, label=None, group=None, title="Scatter Plot", xlabel="x", ylabel="y", width=600, height=600, legend=True, size=4, shape="circle", font_size="16pt", label_font_size="13pt", col_palette=None, hover_xy=True, gradient=False, hline=False, vline=False, xrange=None, yrange=None, grid_line=True, ci=False):
     """Creates a scatterplot using Bokeh.
 
     Required Parameters
@@ -95,7 +97,50 @@ def scatter(x, y, label=None, group=None, title="Scatter Plot", xlabel="x", ylab
     if vline is not False:
         v = Span(location=0, dimension="height", line_color="black", line_width=3, line_alpha=0.15)
         fig.add_layout(v)
+    
+    # Plot extra: 95% confidence ellipse using PCA
+    group_label = group_copy
+    unique_group = np.sort(np.unique(group_label))
 
+    # Set colour per group
+    list_color = ["red", "blue", "green", "orange", "blueviolet", "gold", "peru", "pink", "darkblue", "olive", "teal", "slategray"]
+    while len(list_color) < len(unique_group):  # Loop over list_color if number of groups > len(list_colour)
+        list_color += list_color
+
+    # Add 95% confidence ellipse for each unique group in a loop
+    if ci is True:
+        new_max_range_list = []
+        for i in range(len(unique_group)):
+            # Get scores for the corresponding group
+            group_i_x = []
+            group_i_y = []
+            for j in range(len(group_label)):
+                if group_label[j] == unique_group[i]:
+                    group_i_x.append(x[j])
+                    group_i_y.append(y[j])
+
+            # Calculate ci95 ellipse for each group
+            data_circ_group = pd.DataFrame({"0": group_i_x, "1": group_i_y})
+            m, outside_m = ci95_ellipse(data_circ_group, type="mean")
+            p, outside_p = ci95_ellipse(data_circ_group, type="pop")
+
+            # Plot ci95 ellipse outer line
+            fig.line(m[:, 0], m[:, 1], color=list_color[i], line_width=2, alpha=0.8, line_dash="solid")
+            fig.line(p[:, 0], p[:, 1], color=list_color[i], alpha=0.4)
+
+            # Plot ci95 ellipse shade
+            fig.patch(m[:, 0], m[:, 1], color=list_color[i], alpha=0.07)
+            fig.patch(p[:, 0], p[:, 1], color=list_color[i], alpha=0.01)
+            
+            max_value = max(np.abs(p).flatten())
+            new_max_range_list.append(max_value)
+        
+        new_max_range = max(new_max_range_list)
+        new_range_min = - new_max_range - 0.05 * new_max_range
+        new_range_max = new_max_range + 0.05 * new_max_range
+        fig.y_range = Range1d(new_range_min, new_range_max)
+        fig.x_range = Range1d(new_range_min, new_range_max)
+            
     # Font-sizes
     fig.title.text_font_size = font_size
     fig.xaxis.axis_label_text_font_size = label_font_size
@@ -106,7 +151,12 @@ def scatter(x, y, label=None, group=None, title="Scatter Plot", xlabel="x", ylab
     fig.min_border_right = 20
     fig.min_border_top = 20
     fig.min_border_bottom = 20
-
+    
+    # Remove grid lines
+    if grid_line == False:
+        fig.xgrid.visible = False
+        fig.ygrid.visible = False
+            
     # Remove legend
     if legend is False:
         fig.legend.visible = False

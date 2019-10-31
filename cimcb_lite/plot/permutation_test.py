@@ -10,7 +10,7 @@ from tqdm import tqdm
 from ..utils import binary_metrics
 
 
-def permutation_test(model, X, Y, nperm=100, folds=8):
+def permutation_test(model, X, Y, nperm=100, folds=8, grid_line=True):
     """Creates permutation test plots using Bokeh.
 
     Required Parameters
@@ -207,6 +207,13 @@ def permutation_test(model, X, Y, nperm=100, folds=8):
     fig2.xaxis.axis_label_text_font_size = "12pt"
     fig2.yaxis.axis_label_text_font_size = "12pt"
     fig2.legend.location = "top_left"
-
+    
+    # Remove grid lines
+    if grid_line == False:
+        fig1.xgrid.visible = False
+        fig1.ygrid.visible = False
+        fig2.xgrid.visible = False
+        fig2.ygrid.visible = False
+         
     fig = gridplot([[fig1, fig2]])
     return fig

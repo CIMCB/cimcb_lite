@@ -3,7 +3,7 @@ from scipy import stats
 from bokeh.plotting import figure
 
 
-def distribution(X, group, kde=True, title="Density Plot", xlabel="x", ylabel="Pr(x)", font_size="20pt", label_font_size="13pt", width=500, height=400, color_hist="green", color_kde="mediumturquoise"):
+def distribution(X, group, kde=True, title="Density Plot", xlabel="x", ylabel="Pr(x)", font_size="20pt", label_font_size="13pt", width=500, height=400, color_hist="green", color_kde="mediumturquoise", grid_line=True):
     """Creates a distribution plot using Bokeh.
 
     Required Parameters
@@ -112,5 +112,10 @@ def distribution(X, group, kde=True, title="Density Plot", xlabel="x", ylabel="P
     fig.min_border_right = 20
     fig.min_border_top = 20
     fig.min_border_bottom = 20
+    
+    # Remove grid line
+    if grid_line == False:
+        fig.xgrid.visible = False
+        fig.ygrid.visible = False
 
     return fig

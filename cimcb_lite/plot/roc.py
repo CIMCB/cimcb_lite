@@ -8,7 +8,7 @@ from sklearn.utils import resample
 from ..utils import binary_metrics
 
 
-def roc_plot(fpr, tpr, tpr_ci, width=450, height=350, xlabel="1-Specificity", ylabel="Sensitivity", legend=True, label_font_size="13pt", title="", errorbar=False):
+def roc_plot(fpr, tpr, tpr_ci, width=450, height=350, xlabel="1-Specificity", ylabel="Sensitivity", legend=True, label_font_size="13pt", title="", errorbar=False, grid_line=True):
     """Creates a rocplot using Bokeh.
 
     Parameters
@@ -79,7 +79,12 @@ def roc_plot(fpr, tpr, tpr_ci, width=450, height=350, xlabel="1-Specificity", yl
     fig.min_border_right = 20
     fig.min_border_top = 20
     fig.min_border_bottom = 20
-
+    
+    # Remove grid lines
+    if grid_line == False:
+        fig.xgrid.visible = False
+        fig.ygrid.visible = False
+            
     # Edit legend
     fig.legend.location = "bottom_right"
     fig.legend.label_text_font_size = "10pt"

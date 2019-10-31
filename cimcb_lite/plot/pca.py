@@ -7,7 +7,7 @@ from .scatter import scatter
 from ..utils import ci95_ellipse
 
 
-def pca(X, pcx=1, pcy=2, group_label=None, sample_label=None, peak_label=None, plot_ci=True):
+def pca(X, pcx=1, pcy=2, group_label=None, sample_label=None, peak_label=None, plot_ci=True, grid_line=True):
     """Creates a PCA scores and loadings plot using Bokeh.
 
     Required Parameters
@@ -81,7 +81,14 @@ def pca(X, pcx=1, pcy=2, group_label=None, sample_label=None, peak_label=None, p
             # Plot ci95 ellipse shade
             fig_score.patch(m[:, 0], m[:, 1], color=list_color[i], alpha=0.07)
             fig_score.patch(p[:, 0], p[:, 1], color=list_color[i], alpha=0.01)
-
+    
+    # Remove grid lines
+    if grid_line == False:
+        fig_score.xgrid.visible = False
+        fig_score.ygrid.visible = False
+        fig_load.xgrid.visible = False
+        fig_load.ygrid.visible = False
+        
     # Output this figure with fig_score and fig_load
     output_notebook()
     fig = gridplot([[fig_score, fig_load]])

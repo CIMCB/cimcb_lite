@@ -4,7 +4,7 @@ from bokeh.models import Span, Whisker
 from bokeh.plotting import ColumnDataSource, figure
 
 
-def scatterCI(x, ci=None, label=None, hoverlabel=None, hline=0, sort_abs=False, col_hline=True, col_palette=None, title="Scatter CI Plot", xlabel="Peak", ylabel="Value", width=200, height=300, legend=True, font_size="20pt", label_font_size="13pt", linkrange=None):
+def scatterCI(x, ci=None, label=None, hoverlabel=None, hline=0, sort_abs=False, col_hline=True, col_palette=None, title="Scatter CI Plot", xlabel="Peak", ylabel="Value", width=200, height=300, legend=True, font_size="20pt", label_font_size="13pt", linkrange=None, grid_line=True, border_line=False, x_axis_location="below"):
     """Creates a scatterCI plot using Bokeh.
 
     Required Parameters
@@ -130,8 +130,11 @@ def scatterCI(x, ci=None, label=None, hoverlabel=None, hline=0, sort_abs=False, 
         y_range = (min(np.min(ci[:, 0]) - y_range_max, np.min(ci[:, 0]) - y_range_max), max(np.max(ci[:, 1]) + y_range_max, np.max(ci[:, 0]) + y_range_max))
 
     # Base figure
-    fig = figure(title=title, x_axis_label=xlabel, y_axis_label=ylabel, x_range=xrange, y_range=y_range, plot_width=int(len(x) / 10 * width), plot_height=height, tooltips=TOOLTIPS, toolbar_location="left", toolbar_sticky=False)
-
+    if x_axis_location == 'above':
+        fig = figure(title=title, x_axis_label=xlabel, y_axis_label=ylabel, x_range=xrange, y_range=y_range, plot_width=int(len(x) / 10 * width), plot_height=height, tooltips=TOOLTIPS, toolbar_location="left", toolbar_sticky=False, x_axis_location="above")
+    else:
+        fig = figure(title=title, x_axis_label=xlabel, y_axis_label=ylabel, x_range=xrange, y_range=y_range, plot_width=int(len(x) / 10 * width), plot_height=height, tooltips=TOOLTIPS, toolbar_location="left", toolbar_sticky=False)
+    
     # Add circles
     fig.circle("label", "x", size=10, alpha=0.6, color="col", source=source)
 
@@ -156,5 +159,15 @@ def scatterCI(x, ci=None, label=None, hoverlabel=None, hline=0, sort_abs=False, 
     fig.min_border_right = 20
     fig.min_border_top = 20
     fig.min_border_bottom = 20
-
+    
+    # Remove grid lines
+    if grid_line == False:
+        fig.xgrid.visible = False
+        fig.ygrid.visible = False
+        
+    # Add border
+    if border_line == True:
+        fig.outline_line_width = 2
+        fig.outline_line_alpha = 1
+        fig.outline_line_color = "black"
     return fig
